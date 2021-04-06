@@ -28,8 +28,6 @@ export default function InfoUser({ user, setLoading, setLoadingText }) {
         setLoading(false);
         
         if(resultUpdateProfile.statusResponse) {
-            console.log(resultUploadImage.url);
-            //setPhotoUrl("https://i.imgur.com/E2PbxmA.jpg");
             setPhotoUrl(resultUploadImage.url);
         } else {
             Alert.alert("Ha ocurrido un error al actualizar la foto de perfil.");
