@@ -1,12 +1,14 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useCallback } from 'react';
 import { map } from 'lodash';
 import { Alert, Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Icon, ListItem, Rating } from 'react-native-elements';
+import { useFocusEffect } from '@react-navigation/native'
+import { getDocumentById } from '../../utils/actions';
+import { formatPhone } from '../../utils/helpers';
 import CarouselImages from '../../components/CarouselImages';
 import Loading from '../../components/Loading';
 import MapRestaurant from '../../components/restaurants/MapRestaurant';
-import { getDocumentById } from '../../utils/actions';
-import { formatPhone } from '../../utils/helpers';
+import ListReviews from '../../components/restaurants/ListReviews';
 
 const widthScreen = Dimensions.get("window").width;
 
@@ -16,18 +18,20 @@ export default function Restaurant({ navigation, route}) {
     const [restaurant, setRestaurant] = useState(null);
     const [activeSlide, setActiveSlide] = useState(0);
 
-    useEffect(() => {
-        (async() => {
-            const response = await getDocumentById("restaurants", id);
-
-            if(response.statusResponse) {
-                setRestaurant(response.document);
-            } else {
-                setRestaurant({});
-                Alert.alert("Ocurrió un error cargando el restaurante, intente más tarde.")
-            }
-        })()
-    }, [])
+    useFocusEffect(
+        useCallback(() => {
+            (async() => {
+                const response = await getDocumentById("restaurants", id);
+    
+                if(response.statusResponse) {
+                    setRestaurant(response.document);
+                } else {
+                    setRestaurant({});
+                    Alert.alert("Ocurrió un error cargando el restaurante, intente más tarde.")
+                }
+            })()
+        }, [])
+    )
 
     if(!restaurant) {
         return <Loading isVisible={true} text="Cargando..."/>
@@ -54,6 +58,10 @@ export default function Restaurant({ navigation, route}) {
                 address={restaurant.address}
                 email={restaurant.email}
                 phone={formatPhone(restaurant.callingCode, restaurant.phone)}
+            />
+            <ListReviews
+                navigation={navigation}
+                idRestaurant={restaurant.id}
             />
         </ScrollView>
     )
