@@ -172,7 +172,7 @@ export const getMoreRestaurants = async(limitRestaurants, startRestaurant) => {
     const result = { statusResponse: true, error: null, restaurants: [], startRestaurant: null };
 
     try {
-        
+
         const response = await db
             .collection("restaurants")
             .orderBy("createAt", "desc")
@@ -190,6 +190,21 @@ export const getMoreRestaurants = async(limitRestaurants, startRestaurant) => {
             result.restaurants.push(restaurant);
         })
 
+    } catch (error) {
+        result.statusResponse = false;
+        result.error = error;
+    }
+
+    return result;
+}
+
+export const getDocumentById = async(collection, id) => {
+    const result = { statusResponse: true, error: null, document: null };
+
+    try {
+        const response = await db.collection(collection).doc(id).get();
+        result.document = response.data();
+        result.document.id = response.id;
     } catch (error) {
         result.statusResponse = false;
         result.error = error;

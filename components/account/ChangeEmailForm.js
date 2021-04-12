@@ -47,8 +47,6 @@ export default function ChangeEmailForm({ email, setShowModal, toastRef, setRelo
         setErrorPassword(null);
         let isValid = true;
 
-        console.log("newEmail", newEmail);
-
         if(newEmail === email) {
             setErrorEmail("Debes ingresar un e-mail diferente al actual.");
             isValid = false;

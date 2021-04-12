@@ -21,7 +21,7 @@ export default function UserLogged() {
     useEffect(() => {
         setUser(getCurrentUser());
         setReloadUser(false);
-    }, [])
+    }, [reloadUser])
 
     return (
         <View style = {styles.container}>

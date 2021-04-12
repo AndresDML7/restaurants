@@ -26,14 +26,17 @@ export default function Restaurants({ navigation }) {
 
     useFocusEffect(
         useCallback(async() => {
-            setLoading(true);
-            const response = await getRestaurants(limitRestaurants);
-
-            if(response.statusResponse) {
-                setStartRestaurant(response.startRestaurant);
-                setRestaurants(response.restaurants);
+            async function getData() {
+                setLoading(true);
+                const response = await getRestaurants(limitRestaurants);
+    
+                if(response.statusResponse) {
+                    setStartRestaurant(response.startRestaurant);
+                    setRestaurants(response.restaurants);
+                }
+                setLoading(false);
             }
-            setLoading(false);
+            getData()
         }, [])
     )
 
