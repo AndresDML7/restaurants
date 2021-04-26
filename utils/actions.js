@@ -1,6 +1,7 @@
 import { firebaseApp } from './firebase'
 import firebase from 'firebase'
 import { fileToBlob } from './helpers';
+import { map } from 'lodash';
 require('firebase/firestore')
 
 const db = firebase.firestore(firebaseApp);
@@ -241,6 +242,76 @@ export const getRestaurantReviews = async(idRestaurant) => {
             result.reviews.push(review);
         })
 
+    } catch (error) {
+        result.statusResponse = false;
+        result.error = error;
+    }
+
+    return result;
+}
+
+export const getIsFavorite = async(idRestaurant) => {
+    const result = { statusResponse: true, error: null, isFavorite: false };
+
+    try {
+        const response = await db.collection("favorites")
+        .where("idRestaurant", "==", idRestaurant)
+        .where("idUser", "==", getCurrentUser().uid)
+        .get();
+
+        result.isFavorite = response.docs.length > 0
+    } catch (error) {
+        result.statusResponse = false;
+        result.error = error;
+    }
+
+    return result;
+}
+
+export const deleteFavorite = async(idRestaurant) => {
+    const result = { statusResponse: true, error: null };
+
+    try {
+        const response = await db.collection("favorites")
+        .where("idRestaurant", "==", idRestaurant)
+        .where("idUser", "==", getCurrentUser().uid)
+        .get();
+
+        response.forEach(async(doc) => {
+            const favoriteId = doc.id;
+            await db.collection("favorites").doc(favoriteId).delete();
+        })
+    } catch (error) {
+        result.statusResponse = false;
+        result.error = error;
+    }
+
+    return result;
+}
+
+export const getFavorites = async() => {
+    const result = { statusResponse: true, error: null, favorites: [] };
+
+    try {
+        const response = await db.collection("favorites")
+        .where("idUser", "==", getCurrentUser().uid)
+        .get();
+
+        const restaurantsId = [];
+
+        response.forEach(async(doc) => {
+            const favorite = doc.data();
+            restaurantsId.push(favorite.idRestaurant)
+        })
+
+        await Promise.all(
+            map(restaurantsId, async(restaurantId) => {
+                const response2 = await getDocumentById("restaurants", restaurantId);
+                if(response2.statusResponse) {
+                    result.favorites.push(response2.document)
+                }
+            })
+        )
     } catch (error) {
         result.statusResponse = false;
         result.error = error;
